@@ -106,7 +106,7 @@ public enum ParameterEncoding {
             let method = Method(rawValue: mutableURLRequest.HTTPMethod)
             if method != nil && encodesParametersInURL(method!) {
                 if let URLComponents = NSURLComponents(URL: mutableURLRequest.URL!, resolvingAgainstBaseURL: false) {
-                    URLComponents.percentEncodedQuery = (URLComponents.query != nil ? URLComponents.query! + "&" : "") + query(parameters!)
+                    URLComponents.percentEncodedQuery = (URLComponents.percentEncodedQuery != nil ? URLComponents.percentEncodedQuery! + "&" : "") + query(parameters!)
                     mutableURLRequest.URL = URLComponents.URL
                 }
             } else {
@@ -984,7 +984,7 @@ extension Manager {
 
     private func upload(uploadable: Uploadable) -> Request {
         var uploadTask: NSURLSessionUploadTask!
-        var stream: NSInputStream?
+        var HTTPBodyStream: NSInputStream?
 
         switch uploadable {
         case .Data(let request, let data):
@@ -993,12 +993,13 @@ extension Manager {
             uploadTask = session.uploadTaskWithRequest(request, fromFile: fileURL)
         case .Stream(let request, var stream):
             uploadTask = session.uploadTaskWithStreamedRequest(request)
+            HTTPBodyStream = stream
         }
 
         let request = Request(session: session, task: uploadTask)
-        if stream != nil {
+        if HTTPBodyStream != nil {
             request.delegate.taskNeedNewBodyStream = { _, _ in
-                return stream
+                return HTTPBodyStream
             }
         }
         delegate[request.delegate.task] = request.delegate
