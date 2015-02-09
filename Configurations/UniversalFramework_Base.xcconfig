@@ -1,4 +1,4 @@
-// Alamofire.h
+// Alamofire.swift
 //
 // Copyright (c) 2014–2015 Alamofire (http://alamofire.org)
 //
@@ -20,7 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+// Make it universal
+SUPPORTED_PLATFORMS                    = iphonesimulator iphoneos macosx
+VALID_ARCHS[sdk=iphoneos*]             = arm64 armv7 armv7s
+VALID_ARCHS[sdk=iphonesimulator*]      = arm64 armv7 armv7s
+VALID_ARCHS[sdk=macosx*]               = i386 x86_64
 
-FOUNDATION_EXPORT double AlamofireVersionNumber;
-FOUNDATION_EXPORT const unsigned char AlamofireVersionString[];
+// Dynamic linking uses different default copy paths
+LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]        = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
+LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*] = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
+LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]          = $(inherited) '@executable_path/../Frameworks' '@loader_path/Frameworks'

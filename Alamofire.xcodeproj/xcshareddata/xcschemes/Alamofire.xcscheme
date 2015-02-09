@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0620"
+   LastUpgradeVersion = "0610"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F8111E3219A95C8B0040E7D1"
+               BlueprintIdentifier = "27AB60061A7FAFBF0069F786"
                BuildableName = "Alamofire.framework"
                BlueprintName = "Alamofire"
                ReferencedContainer = "container:Alamofire.xcodeproj">
@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F8111E3D19A95C8B0040E7D1"
+               BlueprintIdentifier = "27AB60111A7FAFBF0069F786"
                BuildableName = "AlamofireTests.xctest"
                BlueprintName = "AlamofireTests"
                ReferencedContainer = "container:Alamofire.xcodeproj">
@@ -46,7 +46,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F8111E3D19A95C8B0040E7D1"
+               BlueprintIdentifier = "27AB60111A7FAFBF0069F786"
                BuildableName = "AlamofireTests.xctest"
                BlueprintName = "AlamofireTests"
                ReferencedContainer = "container:Alamofire.xcodeproj">
@@ -56,7 +56,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F8111E3219A95C8B0040E7D1"
+            BlueprintIdentifier = "27AB60061A7FAFBF0069F786"
             BuildableName = "Alamofire.framework"
             BlueprintName = "Alamofire"
             ReferencedContainer = "container:Alamofire.xcodeproj">
@@ -75,7 +75,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F8111E3219A95C8B0040E7D1"
+            BlueprintIdentifier = "27AB60061A7FAFBF0069F786"
             BuildableName = "Alamofire.framework"
             BlueprintName = "Alamofire"
             ReferencedContainer = "container:Alamofire.xcodeproj">
@@ -93,7 +93,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F8111E3219A95C8B0040E7D1"
+            BlueprintIdentifier = "27AB60061A7FAFBF0069F786"
             BuildableName = "Alamofire.framework"
             BlueprintName = "Alamofire"
             ReferencedContainer = "container:Alamofire.xcodeproj">
