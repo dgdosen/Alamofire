@@ -1,6 +1,6 @@
 // Alamofire.swift
 //
-// Copyright (c) 2014–2015 Alamofire (http://alamofire.org)
+// Copyright (c) 2014–2015 Alamofire Software Foundation (http://alamofire.org/)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -163,7 +163,15 @@ public enum ParameterEncoding {
     Types adopting the `URLStringConvertible` protocol can be used to construct URL strings, which are then used to construct URL requests.
 */
 public protocol URLStringConvertible {
-    /// The URL string.
+    /**
+        A URL that conforms to RFC 2396.
+
+        Methods accepting a `URLStringConvertible` type parameter parse it according to RFCs 1738 and 1808.
+
+        See http://tools.ietf.org/html/rfc2396
+        See http://tools.ietf.org/html/rfc1738
+        See http://tools.ietf.org/html/rfc1808
+    */
     var URLString: String { get }
 }
 
@@ -211,8 +219,6 @@ extension NSURLRequest: URLRequestConvertible {
 
 /**
     Responsible for creating and managing `Request` objects, as well as their underlying `NSURLSession`.
-
-    When finished with a manager, be sure to call either `session.finishTasksAndInvalidate()` or `session.invalidateAndCancel()` before deinitialization.
 */
 public class Manager {
 
@@ -300,6 +306,10 @@ public class Manager {
         }
     }
 
+    deinit {
+        self.session.invalidateAndCancel()
+    }
+
     // MARK: -
 
     /**
@@ -368,13 +378,13 @@ public class Manager {
         // MARK: NSURLSessionDelegate
 
         /// NSURLSessionDelegate override closure for `URLSession:didBecomeInvalidWithError:` method.
-        public var sessionDidBecomeInvalidWithError: ((NSURLSession!, NSError!) -> Void)?
+        public var sessionDidBecomeInvalidWithError: ((NSURLSession, NSError?) -> Void)?
 
         /// NSURLSessionDelegate override closure for `URLSession:didReceiveChallenge:completionHandler:` method.
-        public var sessionDidReceiveChallenge: ((NSURLSession!, NSURLAuthenticationChallenge) -> (NSURLSessionAuthChallengeDisposition, NSURLCredential!))?
+        public var sessionDidReceiveChallenge: ((NSURLSession, NSURLAuthenticationChallenge) -> (NSURLSessionAuthChallengeDisposition, NSURLCredential!))?
 
-        /// NSURLSessionDelegate override closure for `URLSession:didFinishEventsForBackgroundURLSession:` method.
-        public var sessionDidFinishEventsForBackgroundURLSession: ((NSURLSession!) -> Void)?
+        /// NSURLSessionDelegate override closure for `URLSessionDidFinishEventsForBackgroundURLSession:` method.
+        public var sessionDidFinishEventsForBackgroundURLSession: ((NSURLSession) -> Void)?
 
         public func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
             sessionDidBecomeInvalidWithError?(session, error)
@@ -394,23 +404,23 @@ public class Manager {
 
         // MARK: NSURLSessionTaskDelegate
 
-        /// Overrides default behavior for NSURLSessionTaskDelegate method `URLSession:willPerformHTTPRedirection:newRequest:completionHandler:`.
-        public var taskWillPerformHTTPRedirection: ((NSURLSession!, NSURLSessionTask!, NSHTTPURLResponse!, NSURLRequest!) -> (NSURLRequest!))?
+        /// Overrides default behavior for NSURLSessionTaskDelegate method `URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:`.
+        public var taskWillPerformHTTPRedirection: ((NSURLSession, NSURLSessionTask, NSHTTPURLResponse, NSURLRequest) -> (NSURLRequest!))?
 
-        /// Overrides default behavior for NSURLSessionTaskDelegate method `URLSession:willPerformHTTPRedirection:newRequest:completionHandler:`.
-        public var taskDidReceiveChallenge: ((NSURLSession!, NSURLSessionTask!, NSURLAuthenticationChallenge) -> (NSURLSessionAuthChallengeDisposition, NSURLCredential!))?
+        /// Overrides default behavior for NSURLSessionTaskDelegate method `URLSession:task:didReceiveChallenge:completionHandler:`.
+        public var taskDidReceiveChallenge: ((NSURLSession, NSURLSessionTask, NSURLAuthenticationChallenge) -> (NSURLSessionAuthChallengeDisposition, NSURLCredential!))?
 
         /// Overrides default behavior for NSURLSessionTaskDelegate method `URLSession:session:task:needNewBodyStream:`.
-        public var taskNeedNewBodyStream: ((NSURLSession!, NSURLSessionTask!) -> (NSInputStream!))?
+        public var taskNeedNewBodyStream: ((NSURLSession, NSURLSessionTask) -> (NSInputStream!))?
 
         /// Overrides default behavior for NSURLSessionTaskDelegate method `URLSession:task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:`.
-        public var taskDidSendBodyData: ((NSURLSession!, NSURLSessionTask!, Int64, Int64, Int64) -> Void)?
+        public var taskDidSendBodyData: ((NSURLSession, NSURLSessionTask, Int64, Int64, Int64) -> Void)?
 
         /// Overrides default behavior for NSURLSessionTaskDelegate method `URLSession:task:didCompleteWithError:`.
-        public var taskDidComplete: ((NSURLSession!, NSURLSessionTask!, NSError!) -> Void)?
+        public var taskDidComplete: ((NSURLSession, NSURLSessionTask, NSError?) -> Void)?
 
         public func URLSession(session: NSURLSession, task: NSURLSessionTask, willPerformHTTPRedirection response: NSHTTPURLResponse, newRequest request: NSURLRequest, completionHandler: ((NSURLRequest!) -> Void)) {
-            var redirectRequest = request
+            var redirectRequest: NSURLRequest? = request
 
             if taskWillPerformHTTPRedirection != nil {
                 redirectRequest = taskWillPerformHTTPRedirection!(session, task, response, request)
@@ -458,16 +468,16 @@ public class Manager {
         // MARK: NSURLSessionDataDelegate
 
         /// Overrides default behavior for NSURLSessionDataDelegate method `URLSession:dataTask:didReceiveResponse:completionHandler:`.
-        public var dataTaskDidReceiveResponse: ((NSURLSession!, NSURLSessionDataTask!, NSURLResponse!) -> (NSURLSessionResponseDisposition))?
+        public var dataTaskDidReceiveResponse: ((NSURLSession, NSURLSessionDataTask, NSURLResponse) -> (NSURLSessionResponseDisposition))?
 
         /// Overrides default behavior for NSURLSessionDataDelegate method `URLSession:dataTask:didBecomeDownloadTask:`.
-        public var dataTaskDidBecomeDownloadTask: ((NSURLSession!, NSURLSessionDataTask!, NSURLSessionDownloadTask!) -> Void)?
+        public var dataTaskDidBecomeDownloadTask: ((NSURLSession, NSURLSessionDataTask, NSURLSessionDownloadTask) -> Void)?
 
         /// Overrides default behavior for NSURLSessionDataDelegate method `URLSession:dataTask:didReceiveData:`.
-        public var dataTaskDidReceiveData: ((NSURLSession!, NSURLSessionDataTask!, NSData!) -> Void)?
+        public var dataTaskDidReceiveData: ((NSURLSession, NSURLSessionDataTask, NSData) -> Void)?
 
         /// Overrides default behavior for NSURLSessionDataDelegate method `URLSession:dataTask:willCacheResponse:completionHandler:`.
-        public var dataTaskWillCacheResponse: ((NSURLSession!, NSURLSessionDataTask!, NSCachedURLResponse!) -> (NSCachedURLResponse))?
+        public var dataTaskWillCacheResponse: ((NSURLSession, NSURLSessionDataTask, NSCachedURLResponse) -> (NSCachedURLResponse!))?
 
         public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: ((NSURLSessionResponseDisposition) -> Void)) {
             var disposition: NSURLSessionResponseDisposition = .Allow
@@ -509,13 +519,13 @@ public class Manager {
         // MARK: NSURLSessionDownloadDelegate
 
         /// Overrides default behavior for NSURLSessionDownloadDelegate method `URLSession:downloadTask:didFinishDownloadingToURL:`.
-        public var downloadTaskDidFinishDownloadingToURL: ((NSURLSession!, NSURLSessionDownloadTask!, NSURL) -> (NSURL))?
+        public var downloadTaskDidFinishDownloadingToURL: ((NSURLSession, NSURLSessionDownloadTask, NSURL) -> Void)?
 
         /// Overrides default behavior for NSURLSessionDownloadDelegate method `URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:`.
-        public var downloadTaskDidWriteData: ((NSURLSession!, NSURLSessionDownloadTask!, Int64, Int64, Int64) -> Void)?
+        public var downloadTaskDidWriteData: ((NSURLSession, NSURLSessionDownloadTask, Int64, Int64, Int64) -> Void)?
 
         /// Overrides default behavior for NSURLSessionDownloadDelegate method `URLSession:downloadTask:didResumeAtOffset:expectedTotalBytes:`.
-        public var downloadTaskDidResumeAtOffset: ((NSURLSession!, NSURLSessionDownloadTask!, Int64, Int64) -> Void)?
+        public var downloadTaskDidResumeAtOffset: ((NSURLSession, NSURLSessionDownloadTask, Int64, Int64) -> Void)?
 
         public func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
             if downloadTaskDidFinishDownloadingToURL != nil {
@@ -637,7 +647,7 @@ public class Request {
         Sets a closure to be called periodically during the lifecycle of the request as data is written to or read from the server.
 
         - For uploads, the progress closure returns the bytes written, total bytes written, and total bytes expected to write.
-        - For downloads, the progress closure returns the bytes read, total bytes read, and total bytes expected to write.
+        - For downloads and data tasks, the progress closure returns the bytes read, total bytes read, and total bytes expected to read.
 
         :param: closure The code to be executed periodically during the lifecycle of the request.
 
@@ -694,7 +704,7 @@ public class Request {
         :returns: The request.
     */
     public func response(queue: dispatch_queue_t? = nil, serializer: Serializer, completionHandler: (NSURLRequest, NSHTTPURLResponse?, AnyObject?, NSError?) -> Void) -> Self {
-        dispatch_async(delegate.queue) {
+        delegate.queue.addOperationWithBlock {
             let (responseObject: AnyObject?, serializationError: NSError?) = serializer(self.request, self.response, self.delegate.data)
 
             dispatch_async(queue ?? dispatch_get_main_queue()) {
@@ -734,7 +744,7 @@ public class Request {
 
     class TaskDelegate: NSObject, NSURLSessionTaskDelegate {
         let task: NSURLSessionTask
-        let queue: dispatch_queue_t
+        let queue: NSOperationQueue
         let progress: NSProgress
 
         var data: NSData? { return nil }
@@ -751,13 +761,21 @@ public class Request {
             self.task = task
             self.progress = NSProgress(totalUnitCount: 0)
             self.queue = {
-                let label: String = "com.alamofire.task-\(task.taskIdentifier)"
-                let queue = dispatch_queue_create((label as NSString).UTF8String, DISPATCH_QUEUE_SERIAL)
+                let operationQueue = NSOperationQueue()
+                operationQueue.maxConcurrentOperationCount = 1
+                operationQueue.suspended = true
 
-                dispatch_suspend(queue)
+                if operationQueue.respondsToSelector("qualityOfService") {
+                    operationQueue.qualityOfService = NSQualityOfService.Utility
+                }
 
-                return queue
+                return operationQueue
             }()
+        }
+
+        deinit {
+            queue.cancelAllOperations()
+            queue.suspended = true
         }
 
         // MARK: NSURLSessionTaskDelegate
@@ -805,7 +823,7 @@ public class Request {
                 self.error = error
             }
 
-            dispatch_resume(queue)
+            queue.suspended = false
         }
     }
 
@@ -853,9 +871,13 @@ public class Request {
 
             mutableData.appendData(data)
 
-            if let expectedContentLength = dataTask.response?.expectedContentLength {
-                dataProgress?(bytesReceived: Int64(data.length), totalBytesReceived: Int64(mutableData.length), totalBytesExpectedToReceive: expectedContentLength)
-            }
+            let totalBytesReceived = Int64(mutableData.length)
+            let totalBytesExpectedToReceive = dataTask.response?.expectedContentLength ?? NSURLSessionTransferSizeUnknown
+
+            progress.totalUnitCount = totalBytesExpectedToReceive
+            progress.completedUnitCount = totalBytesReceived
+
+            dataProgress?(bytesReceived: Int64(data.length), totalBytesReceived: totalBytesReceived, totalBytesExpectedToReceive: totalBytesExpectedToReceive)
         }
 
         func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, willCacheResponse proposedResponse: NSCachedURLResponse, completionHandler: ((NSCachedURLResponse!) -> Void)) {
@@ -889,7 +911,7 @@ extension Request {
         :returns: The request.
     */
     public func validate(validation: Validation) -> Self {
-        dispatch_async(delegate.queue) {
+        delegate.queue.addOperationWithBlock {
             if self.response != nil && self.delegate.error == nil {
                 if !validation(self.request, self.response!) {
                     self.delegate.error = NSError(domain: AlamofireErrorDomain, code: -1, userInfo: nil)
@@ -1304,7 +1326,7 @@ extension Request {
 // MARK: - Printable
 
 extension Request: Printable {
-    /// The textual representation used when written to an `OutputStreamType`, which includes the HTTP method and URL, as well as the response status code if a response has been received.
+    /// The textual representation used when written to an output stream, which includes the HTTP method and URL, as well as the response status code if a response has been received.
     public var description: String {
         var components: [String] = []
         if request.HTTPMethod != nil {
@@ -1389,7 +1411,7 @@ extension Request: DebugPrintable {
         return join(" \\\n\t", components)
     }
 
-    /// The textual representation used when written to an `OutputStreamType`, in the form of a cURL command.
+    /// The textual representation used when written to an output stream, in the form of a cURL command.
     public var debugDescription: String {
         return cURLRepresentation()
     }
